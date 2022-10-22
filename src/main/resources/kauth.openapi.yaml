@@ -1,0 +1,411 @@
+# PLEASE don't add host yourself, it is added automatically
+
+openapi: '3.0.3'
+info:
+  title: 'kauth API'
+  description: 'kauth API'
+  version: '0.1'
+tags:
+  - name: Authentication
+  - name: Application
+  - name: Application User
+paths:
+  /api?type=get_applications:
+    get:
+      tags:
+        - Application
+      summary: 'Get applications'
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=get_application:
+    get:
+      tags:
+        - Application
+      summary: 'Get application by ID'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=create_application:
+    get:
+      tags:
+        - Application
+      summary: 'Create application'
+      parameters:
+        - in: query
+          name: 'name'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=update_application:
+    get:
+      tags:
+        - Application
+      summary: 'Update application'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'name'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Application'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=delete_application:
+    get:
+      tags:
+        - Application
+      summary: 'Delete application'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=get_application_users:
+    get:
+      tags:
+        - Application User
+      summary: 'Get application users'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ApplicationUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=get_application_user:
+    get:
+      tags:
+        - Application User
+      summary: 'Get application user by ID'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'user_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=create_application_user:
+    get:
+      tags:
+        - Application User
+      summary: 'Create application user'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'key'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'hwid'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=update_application_user:
+    get:
+      tags:
+        - Application User
+      summary: 'Update application user'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'user_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'key'
+          schema:
+            type: string
+        - in: query
+          name: 'hwid'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationUser'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=delete_application_user:
+    get:
+      tags:
+        - Application User
+      summary: 'Delete application user'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'user_id'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /login:
+    get:
+      tags:
+        - Authentication
+      summary: 'Login'
+      parameters:
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /register:
+    get:
+      tags:
+        - Authentication
+      summary: 'Register'
+      parameters:
+        - in: query
+          name: username
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: email
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: password
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /validate:
+    get:
+      tags:
+        - Authentication
+      summary: 'Validate user'
+      parameters:
+        - in: query
+          name: application_id
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: key
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: hwid
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                properties:
+                  valid:
+                    type: boolean
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+security:
+  - BearerAuth: []
+components:
+  schemas:
+    Application:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Application ID
+        owner:
+          type: string
+          description: Application owner ID
+        name:
+          type: string
+          description: Application Name
+        users:
+          type: array
+          description: Application Users
+          items:
+            $ref: '#components/schemas/ApplicationUser'
+    ApplicationUser:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Application User ID
+        applicationId:
+          type: string
+          description: Application ID
+        key:
+          type: string
+          description: Application User Key
+        hwid:
+          type: string
+          description: Application User HWID
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        message:
+          type: string
+      required:
+        - error
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+  responses:
+    InternalServerError:
+      description: ERROR
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+    Unauthorized:
+      description: UNAUTHORIZED
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'

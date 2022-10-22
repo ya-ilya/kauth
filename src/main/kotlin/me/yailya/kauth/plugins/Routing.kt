@@ -10,6 +10,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.http.content.*
 import io.ktor.server.plugins.statuspages.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -27,6 +28,10 @@ import java.util.*
 
 @Suppress("SpellCheckingInspection")
 fun Application.configureRouting() {
+    val openApi = Thread.currentThread().contextClassLoader!!
+        .getResourceAsStream("kauth.openapi.yaml")!!
+        .reader().readText() + "\nhost: ${me.yailya.kauth.HOST}"
+
     install(StatusPages) {
         exception<Throwable> { call, throwable ->
             throwable.printStackTrace()
@@ -125,6 +130,14 @@ fun Application.configureRouting() {
                     )
                 )
             }
+        }
+
+        get("openapi") {
+            call.respondText(openApi)
+        }
+
+        static("swagger") {
+            defaultResource("kauth.swagger.html")
         }
 
         authenticate("auth-jwt") {
