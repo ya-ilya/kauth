@@ -2,7 +2,7 @@
  * Copyright (c) 2022. ya-ilya
  */
 
-package me.yailya.kauth.database.user
+package me.yailya.kauth.database.account
 
 import me.yailya.kauth.database.abstraction.IdEntityClass
 import me.yailya.kauth.database.abstraction.ModeledIdEntity

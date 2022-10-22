@@ -18,9 +18,9 @@ import io.ktor.server.routing.*
 import me.yailya.kauth.JWT_AUDIENCE
 import me.yailya.kauth.JWT_ISSUER
 import me.yailya.kauth.JWT_SECRET
+import me.yailya.kauth.database.account.AccountEntity
+import me.yailya.kauth.database.account.Accounts
 import me.yailya.kauth.database.application.ApplicationEntity
-import me.yailya.kauth.database.user.AccountEntity
-import me.yailya.kauth.database.user.Accounts
 import me.yailya.kauth.exceptions.PrintableException
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.and
@@ -125,7 +125,6 @@ fun Application.configureRouting() {
                         .any { it.key == queryParameters["key"] && it.hwid == queryParameters["hwid"] }
                 ))
             } catch (ex: Exception) {
-                ex.printStackTrace()
                 call.respond(
                     hashMapOf(
                         "valid" to false
@@ -233,7 +232,7 @@ fun Application.configureRouting() {
     }
 }
 
-suspend fun ApplicationCall.validUserToken(): AccountEntity {
+private suspend fun ApplicationCall.validUserToken(): AccountEntity {
     val token = this.principal<JWTPrincipal>()!!
     val tokenString = request.authorization()!!.removePrefix("Bearer ")
     val user = AccountEntity.getById(UUID.fromString(token.payload.getClaim("id").asString()))

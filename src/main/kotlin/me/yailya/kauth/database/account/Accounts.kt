@@ -2,7 +2,7 @@
  * Copyright (c) 2022. ya-ilya
  */
 
-package me.yailya.kauth.database.user
+package me.yailya.kauth.database.account
 
 import org.jetbrains.exposed.dao.id.UUIDTable
 

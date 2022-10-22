@@ -2,7 +2,7 @@
  * Copyright (c) 2022. ya-ilya
  */
 
-package me.yailya.kauth.database.user
+package me.yailya.kauth.database.account
 
 import kotlinx.serialization.Serializable
 import me.yailya.kauth.serializers.UUIDSerializer

@@ -6,10 +6,10 @@ package me.yailya.kauth.database.application
 
 import me.yailya.kauth.database.abstraction.IdEntityClass
 import me.yailya.kauth.database.abstraction.ModeledIdEntity
+import me.yailya.kauth.database.account.AccountEntity
 import me.yailya.kauth.database.application.user.ApplicationUserEntity
 import me.yailya.kauth.database.application.user.ApplicationUsers
 import me.yailya.kauth.database.databaseQuery
-import me.yailya.kauth.database.user.AccountEntity
 import org.jetbrains.exposed.dao.id.EntityID
 import java.util.*
 
