@@ -46,6 +46,7 @@ fun Application.configureRouting() {
                         )
                     )
                 }
+
                 throwable is ExposedSQLException && throwable.message!!.contains("Value too long") -> {
                     call.respond(
                         HttpStatusCode.InternalServerError,
@@ -55,6 +56,7 @@ fun Application.configureRouting() {
                         )
                     )
                 }
+
                 else -> {
                     call.respond(
                         HttpStatusCode.InternalServerError,

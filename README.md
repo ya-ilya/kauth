@@ -4,19 +4,6 @@ Open-source authentication system made in [Kotlin](https://github.com/JetBrains/
 
 - Documentation: [OpenAPI Yaml](https://github.com/ya-ilya/kauth/blob/master/src/main/resources/kauth.openapi.yaml)
 
-#### Run
-
-`java -jar kauth.jar Parameters...`
-
-Parameters:
-
-- `string`  host (default: `"127.0.0.1"`)
-- `integer` port (default: `8080`)
-- `string`  jwt-audience (default: `"http://${host}:${port}/api"`)
-- `string`  jwt-issuer (default: `"http://${host}:${port}/api"`)
-- `string`  jwt-secret (default: `"jwt-secret"`)
-- `string`  jwt-realm (default: `"Access to 'kauth'"`)
-
 #### TODO
 
 - [ ] **Webhooks**

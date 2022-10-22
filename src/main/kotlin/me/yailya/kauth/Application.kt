@@ -8,10 +8,15 @@ package me.yailya.kauth
 
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+import me.yailya.kauth.config.Config
 import me.yailya.kauth.database.configureDatabase
 import me.yailya.kauth.plugins.configureContent
 import me.yailya.kauth.plugins.configureRouting
 import me.yailya.kauth.plugins.configureSecurity
+import java.io.File
 
 var HOST = "127.0.0.1"
 var PORT = 8080
@@ -23,15 +28,22 @@ var JWT_AUDIENCE: String? = null
 var JWT_ISSUER: String? = null
     get() = field ?: "http://$HOST:$PORT/api"
 
-fun main(args: Array<String>) {
-    arguments(args, mapOf(
-        "host" to { HOST = it },
-        "port" to { PORT = it.toInt() },
-        "jwt-audience" to { JWT_AUDIENCE = it },
-        "jwt-issuer" to { JWT_ISSUER = it },
-        "jwt-secret" to { JWT_SECRET = it },
-        "jwt-realm" to { JWT_REALM = it }
-    ))
+fun main() {
+    val configFile = File("kauth.config.json")
+
+    if (!configFile.exists()) {
+        configFile.createNewFile()
+        configFile.writeText(Json.encodeToString(Config(HOST, PORT, JWT_AUDIENCE, JWT_ISSUER, JWT_SECRET, JWT_REALM)))
+    }
+
+    val config = Json.decodeFromString<Config>(configFile.readText())
+
+    config.host.ifNotNull { HOST = it }
+    config.port.ifNotNull { PORT = it }
+    config.jwtAudience.ifNotNull { JWT_AUDIENCE = it }
+    config.jwtIssuer.ifNotNull { JWT_ISSUER = it }
+    config.jwtSecret.ifNotNull { JWT_SECRET = it }
+    config.jwtRealm.ifNotNull { JWT_REALM = it }
 
     embeddedServer(Netty, host = HOST, port = PORT) {
         configureDatabase()
@@ -41,30 +53,8 @@ fun main(args: Array<String>) {
     }.start(wait = true)
 }
 
-fun arguments(args: Array<String>, map: Map<String, (String) -> Unit>) {
-    for ((key, value) in map) {
-        val index = args.indexOf("--$key")
-
-        if (index != -1) {
-            if (args[index + 1].startsWith("\"")) {
-                val sList = mutableListOf(args[index + 1].removePrefix("\""))
-
-                for (sIndex in (index + 1)..args.lastIndex) {
-                    val sPart = args[sIndex]
-
-                    if (sPart.endsWith("\"")) {
-                        sList.add(sPart.removeSuffix("\""))
-                        break
-                    }
-
-                    sList.add(sPart)
-                }
-
-                value(sList.joinToString(" "))
-                return
-            }
-
-            value(args[index + 1])
-        }
+private fun <T : Any> T?.ifNotNull(block: (T) -> Unit) {
+    if (this != null) {
+        block(this)
     }
 }
