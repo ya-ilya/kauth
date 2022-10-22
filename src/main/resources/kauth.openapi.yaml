@@ -1,5 +1,3 @@
-# PLEASE don't add host yourself, it is added automatically
-
 openapi: '3.0.3'
 info:
   title: 'kauth API'
@@ -276,10 +274,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
+                $ref: '#/components/schemas/LoginResult'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /register:
@@ -309,10 +304,7 @@ paths:
           content:
             application/json:
               schema:
-                type: object
-                properties:
-                  token:
-                    type: string
+                $ref: '#/components/schemas/LoginResult'
         '500':
           $ref: '#/components/responses/InternalServerError'
   /validate:
@@ -342,9 +334,7 @@ paths:
           content:
             application/json:
               schema:
-                properties:
-                  valid:
-                    type: boolean
+                $ref: '#/components/schemas/ValidateResult'
         '500':
           $ref: '#/components/responses/InternalServerError'
 security:
@@ -367,7 +357,7 @@ components:
           type: array
           description: Application Users
           items:
-            $ref: '#components/schemas/ApplicationUser'
+            $ref: '#/components/schemas/ApplicationUser'
     ApplicationUser:
       type: object
       properties:
@@ -383,6 +373,18 @@ components:
         hwid:
           type: string
           description: Application User HWID
+    LoginResult:
+      type: object
+      properties:
+        token:
+          type: string
+          description: Access Token
+    ValidateResult:
+      type: object
+      properties:
+        valid:
+          type: string
+          description: Validation result
     Error:
       type: object
       properties:
