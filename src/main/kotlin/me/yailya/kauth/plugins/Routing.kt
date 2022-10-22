@@ -36,34 +36,34 @@ fun Application.configureRouting() {
         exception<Throwable> { call, throwable ->
             throwable.printStackTrace()
 
-            if (throwable is PrintableException) {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    mapOf(
-                        "error" to throwable.name,
-                        "message" to throwable.message
+            when {
+                throwable is PrintableException -> {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf(
+                            "error" to throwable.name,
+                            "message" to throwable.message
+                        )
                     )
-                )
-
-                return@exception
-            }
-
-            if (throwable is ExposedSQLException && throwable.message!!.contains("Value too long")) {
-                call.respond(
-                    HttpStatusCode.InternalServerError,
-                    mapOf(
-                        "error" to "SQLException",
-                        "message" to "Value too long"
+                }
+                throwable is ExposedSQLException && throwable.message!!.contains("Value too long") -> {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf(
+                            "error" to "SQLException",
+                            "message" to "Value too long"
+                        )
                     )
-                )
+                }
+                else -> {
+                    call.respond(
+                        HttpStatusCode.InternalServerError,
+                        mapOf(
+                            "error" to throwable.javaClass.simpleName
+                        )
+                    )
+                }
             }
-
-            call.respond(
-                HttpStatusCode.InternalServerError,
-                mapOf(
-                    "error" to throwable.javaClass.simpleName
-                )
-            )
         }
     }
 
