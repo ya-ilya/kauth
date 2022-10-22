@@ -358,6 +358,7 @@ components:
           description: Application Users
           items:
             $ref: '#/components/schemas/ApplicationUser'
+      required: [ id, owner, name, users ]
     ApplicationUser:
       type: object
       properties:
@@ -373,18 +374,21 @@ components:
         hwid:
           type: string
           description: Application User HWID
+      required: [ id, applicationId, key, hwid ]
     LoginResult:
       type: object
       properties:
         token:
           type: string
           description: Access Token
+      required: [ token ]
     ValidateResult:
       type: object
       properties:
         valid:
           type: string
           description: Validation result
+      required: [ valid ]
     Error:
       type: object
       properties:
@@ -392,8 +396,7 @@ components:
           type: string
         message:
           type: string
-      required:
-        - error
+      required: [ error ]
   securitySchemes:
     BearerAuth:
       type: http
