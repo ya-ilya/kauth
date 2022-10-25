@@ -9,6 +9,7 @@ import kotlinx.coroutines.Dispatchers
 import me.yailya.kauth.database.account.Accounts
 import me.yailya.kauth.database.application.Applications
 import me.yailya.kauth.database.application.user.ApplicationUsers
+import me.yailya.kauth.database.application.webhook.ApplicationWebhooks
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.StdOutSqlLogger
 import org.jetbrains.exposed.sql.addLogger
@@ -22,7 +23,7 @@ fun Application.configureDatabase() {
     val database = org.jetbrains.exposed.sql.Database.connect(jdbcURL, driverClassName)
 
     transaction(database) {
-        SchemaUtils.create(Accounts, Applications, ApplicationUsers)
+        SchemaUtils.create(Accounts, Applications, ApplicationUsers, ApplicationWebhooks)
 
         addLogger(StdOutSqlLogger)
     }

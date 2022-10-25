@@ -39,4 +39,4 @@ out/
 ### kauth ###
 data/
 backup/
-kauth-config.json
+kauth.config.json

@@ -21,6 +21,7 @@ import me.yailya.kauth.JWT_SECRET
 import me.yailya.kauth.database.account.AccountEntity
 import me.yailya.kauth.database.account.Accounts
 import me.yailya.kauth.database.application.ApplicationEntity
+import me.yailya.kauth.database.application.webhook.ApplicationWebhookTrigger
 import me.yailya.kauth.exceptions.PrintableException
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.and
@@ -118,12 +119,24 @@ fun Application.configureRouting() {
             val queryParameters = call.request.queryParameters
 
             try {
-                call.respond(hashMapOf(
-                    "valid" to ApplicationEntity
-                        .getById(UUID.fromString(queryParameters["application_id"]))
-                        .getApplicationUserModels()
-                        .any { it.key == queryParameters["key"] && it.hwid == queryParameters["hwid"] }
-                ))
+                val application = ApplicationEntity
+                    .getById(UUID.fromString(queryParameters["application_id"]))
+                val result = application
+                    .getApplicationUserModels()
+                    .any { it.key == queryParameters["key"] && it.hwid == queryParameters["hwid"] }
+
+                application.getApplicationWebhookModels()
+                    .filter { it.trigger == ApplicationWebhookTrigger.Validate }
+                    .forEach {
+                        it.execute(
+                            application.id.toString(),
+                            queryParameters["key"]!!,
+                            queryParameters["hwid"]!!,
+                            result.toString()
+                        )
+                    }
+
+                call.respond(hashMapOf("valid" to result))
             } catch (ex: Exception) {
                 call.respond(
                     hashMapOf(
@@ -225,6 +238,52 @@ fun Application.configureRouting() {
                         call.validUserToken()
                             .getApplication(UUID.fromString(queryParameters["application_id"]))
                             .deleteApplicationUser(UUID.fromString(queryParameters["user_id"]))
+                    }
+
+                    "get_application_webhooks" -> {
+                        call.respond(
+                            call.validUserToken()
+                                .getApplication(UUID.fromString(queryParameters["application_id"]))
+                                .getApplicationWebhookModels()
+                        )
+                    }
+
+                    "get_application_webhook" -> {
+                        call.respond(
+                            call.validUserToken()
+                                .getApplication(UUID.fromString(queryParameters["application_id"]))
+                                .getApplicationWebhook(UUID.fromString(queryParameters["webhook_id"]))
+                                .toModel()
+                        )
+                    }
+
+                    "create_application_webhook" -> {
+                        call.respond(
+                            call.validUserToken()
+                                .getApplication(UUID.fromString(queryParameters["application_id"]))
+                                .createApplicationWebhook(queryParameters["trigger"]!!, queryParameters["url"]!!)
+                                .toModel()
+                        )
+                    }
+
+                    "update_application_uwebhook" -> {
+                        call.respond(
+                            call.validUserToken()
+                                .getApplication(UUID.fromString(queryParameters["application_id"]))
+                                .getApplicationWebhook(UUID.fromString(queryParameters["webhook_id"]))
+                                .updateEntity {
+                                    if (queryParameters["trigger"] != null) this.trigger = ApplicationWebhookTrigger
+                                        .valueOf(queryParameters["trigger"]!!)
+                                        .toString()
+                                    if (queryParameters["url"] != null) this.url = queryParameters["url"]!!
+                                }.toModel()
+                        )
+                    }
+
+                    "delete_application_webhook" -> {
+                        call.validUserToken()
+                            .getApplication(UUID.fromString(queryParameters["application_id"]))
+                            .deleteApplicationWebhook(UUID.fromString(queryParameters["webhook_id"]))
                     }
                 }
             }

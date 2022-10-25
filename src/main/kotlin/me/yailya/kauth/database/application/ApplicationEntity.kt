@@ -9,6 +9,9 @@ import me.yailya.kauth.database.abstraction.ModeledIdEntity
 import me.yailya.kauth.database.account.AccountEntity
 import me.yailya.kauth.database.application.user.ApplicationUserEntity
 import me.yailya.kauth.database.application.user.ApplicationUsers
+import me.yailya.kauth.database.application.webhook.ApplicationWebhookEntity
+import me.yailya.kauth.database.application.webhook.ApplicationWebhookTrigger
+import me.yailya.kauth.database.application.webhook.ApplicationWebhooks
 import me.yailya.kauth.database.databaseQuery
 import org.jetbrains.exposed.dao.id.EntityID
 import java.util.*
@@ -26,6 +29,7 @@ class ApplicationEntity(id: EntityID<UUID>) : ModeledIdEntity<UUID, ApplicationM
 
     var owner by AccountEntity referencedOn Applications.owner
     val users by ApplicationUserEntity referrersOn ApplicationUsers.application
+    val webhooks by ApplicationWebhookEntity referrersOn ApplicationWebhooks.application
     var name by Applications.name
 
     suspend fun createApplicationUser(key: String, hwid: String) =
@@ -45,6 +49,23 @@ class ApplicationEntity(id: EntityID<UUID>) : ModeledIdEntity<UUID, ApplicationM
         getApplicationUser(id).delete()
     }
 
+    suspend fun createApplicationWebhook(trigger: String, url: String) =
+        ApplicationWebhookEntity.create(this, ApplicationWebhookTrigger.valueOf(trigger), url)
+
+    suspend fun getApplicationWebhook(id: UUID) = databaseQuery {
+        webhooks.find { it.id.value == id }!!
+    }
+
+    suspend fun getApplicationWebhookModels() = databaseQuery {
+        webhooks.map { it.toModel() }
+    }
+
+    suspend fun getApplicationWebhooks() = databaseQuery { webhooks }
+
+    suspend fun deleteApplicationWebhook(id: UUID) = databaseQuery {
+        getApplicationWebhook(id).delete()
+    }
+
     suspend fun updateEntity(block: suspend ApplicationEntity.() -> Unit) = databaseQuery {
         block(this)
         this
@@ -57,7 +78,8 @@ class ApplicationEntity(id: EntityID<UUID>) : ModeledIdEntity<UUID, ApplicationM
             id.value,
             owner.id.value,
             name,
-            users.map { it.toModel() }
+            users.map { it.toModel() },
+            webhooks.map { it.toModel() }
         )
     }
 }
