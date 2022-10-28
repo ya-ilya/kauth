@@ -266,7 +266,7 @@ fun Application.configureRouting() {
                         )
                     }
 
-                    "update_application_uwebhook" -> {
+                    "update_application_webhook" -> {
                         call.respond(
                             call.validUserToken()
                                 .getApplication(UUID.fromString(queryParameters["application_id"]))
