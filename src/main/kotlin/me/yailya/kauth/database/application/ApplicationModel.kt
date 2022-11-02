@@ -5,6 +5,7 @@
 package me.yailya.kauth.database.application
 
 import kotlinx.serialization.Serializable
+import me.yailya.kauth.database.application.file.ApplicationFileModel
 import me.yailya.kauth.database.application.user.ApplicationUserModel
 import me.yailya.kauth.database.application.webhook.ApplicationWebhookModel
 import me.yailya.kauth.serializers.UUIDSerializer
@@ -18,5 +19,6 @@ data class ApplicationModel(
     val owner: UUID,
     val name: String,
     val users: List<ApplicationUserModel>,
-    val webhooks: List<ApplicationWebhookModel>
+    val webhooks: List<ApplicationWebhookModel>,
+    val files: List<ApplicationFileModel>
 )

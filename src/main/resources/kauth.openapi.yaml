@@ -2,12 +2,13 @@ openapi: '3.0.3'
 info:
   title: 'kauth API'
   description: 'kauth API'
-  version: '0.1.1'
+  version: '0.1.2'
 tags:
   - name: Authentication
   - name: Application
   - name: Application User
   - name: Application Webhook
+  - name: Application File
 paths:
   /api?type=get_applications:
     get:
@@ -394,6 +395,109 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '500':
           $ref: '#/components/responses/InternalServerError'
+  /api?type=get_application_files:
+    get:
+      tags:
+        - Application File
+      summary: 'Get application files'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/ApplicationFile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=get_application_file:
+    get:
+      tags:
+        - Application File
+      summary: 'Get application file by ID'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'file_id'
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationFile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=create_application_file:
+    post:
+      tags:
+        - Application File
+      summary: 'Create application file'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ApplicationFile'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /api?type=delete_application_file:
+    get:
+      tags:
+        - Application File
+      summary: 'Delete application file'
+      parameters:
+        - in: query
+          name: 'application_id'
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: 'file_id'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 'OK'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
   /login:
     get:
       tags:
@@ -470,6 +574,10 @@ paths:
           required: true
           schema:
             type: string
+        - in: query
+          name: file_id
+          schema:
+            type: string
       responses:
         '200':
           description: 'OK'
@@ -480,7 +588,7 @@ paths:
         '500':
           $ref: '#/components/responses/InternalServerError'
 security:
-  - BearerAuth: []
+  - BearerAuth: [ ]
 components:
   schemas:
     Application:
@@ -538,6 +646,19 @@ components:
           type: string
           description: Application Webhook HWID
       required: [ id, applicationId, trigger, url ]
+    ApplicationFile:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Application File ID
+        applicationId:
+          type: string
+          description: Application ID
+        fileName:
+          type: string
+          description: Application File Name
+      required: [ id, applicationId, fileName ]
     LoginResult:
       type: object
       properties:

@@ -7,6 +7,7 @@ package me.yailya.kauth.plugins
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import io.ktor.http.*
+import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
@@ -26,6 +27,8 @@ import me.yailya.kauth.exceptions.PrintableException
 import org.jetbrains.exposed.exceptions.ExposedSQLException
 import org.jetbrains.exposed.sql.and
 import java.util.*
+
+const val MAX_FILE_SIZE = 52428800 // 50mb
 
 @Suppress("SpellCheckingInspection")
 fun Application.configureRouting() {
@@ -136,7 +139,14 @@ fun Application.configureRouting() {
                         )
                     }
 
-                call.respond(hashMapOf("valid" to result))
+                if (queryParameters["file_id"] != null) {
+                    val file = application.getApplicationFile(UUID.fromString(queryParameters["file_id"]))
+
+                    call.response.header(HttpHeaders.ContentDisposition, "attachment; filename=\"${file.fileName}\"")
+                    call.respondFile(file.file)
+                } else {
+                    call.respond(hashMapOf("valid" to result))
+                }
             } catch (ex: Exception) {
                 call.respond(
                     hashMapOf(
@@ -155,6 +165,30 @@ fun Application.configureRouting() {
         }
 
         authenticate("auth-jwt") {
+            post("api") {
+                val queryParameters = call.request.queryParameters
+
+                when (call.request.queryParameters["type"]) {
+                    "create_application_file" -> {
+                        if (call.request.header(HttpHeaders.ContentLength)!!.toInt() > MAX_FILE_SIZE) {
+                            throw PrintableException("FileTooBig", "File too big (max $MAX_FILE_SIZE bytes)")
+                        }
+
+                        val filePart = call.receiveMultipart().readPart() as PartData.FileItem
+
+                        call.respond(
+                            call.validUserToken()
+                                .getApplication(UUID.fromString(queryParameters["application_id"]))
+                                .createApplicationFile(
+                                    filePart.originalFileName!!,
+                                    filePart.streamProvider().readBytes()
+                                )
+                                .toModel()
+                        )
+                    }
+                }
+            }
+
             get("api") {
                 val queryParameters = call.request.queryParameters
 
@@ -266,7 +300,7 @@ fun Application.configureRouting() {
                         )
                     }
 
-                    "update_application_uwebhook" -> {
+                    "update_application_webhook" -> {
                         call.respond(
                             call.validUserToken()
                                 .getApplication(UUID.fromString(queryParameters["application_id"]))
@@ -284,6 +318,29 @@ fun Application.configureRouting() {
                         call.validUserToken()
                             .getApplication(UUID.fromString(queryParameters["application_id"]))
                             .deleteApplicationWebhook(UUID.fromString(queryParameters["webhook_id"]))
+                    }
+
+                    "get_application_files" -> {
+                        call.respond(
+                            call.validUserToken()
+                                .getApplication(UUID.fromString(queryParameters["application_id"]))
+                                .getApplicationFileModels()
+                        )
+                    }
+
+                    "get_application_file" -> {
+                        call.respond(
+                            call.validUserToken()
+                                .getApplication(UUID.fromString(queryParameters["application_id"]))
+                                .getApplicationFile(UUID.fromString(queryParameters["file_id"]))
+                                .toModel()
+                        )
+                    }
+
+                    "delete_application_file" -> {
+                        call.validUserToken()
+                            .getApplication(UUID.fromString(queryParameters["application_id"]))
+                            .deleteApplicationFile(UUID.fromString(queryParameters["file_id"]))
                     }
                 }
             }

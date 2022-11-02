@@ -12,7 +12,7 @@ plugins {
 }
 
 group = "me.yailya"
-version = "0.1.1"
+version = "0.1.2"
 
 application {
     mainClass.set("me.yailya.kauth.ApplicationKt")

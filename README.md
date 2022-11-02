@@ -7,7 +7,8 @@ Open-source authentication system made in [Kotlin](https://github.com/JetBrains/
 #### TODO
 
 - [X] **Webhooks**
-- [ ] **Files**
+- [X] **Files**
+- [ ] **Make tests**
 
 #### Links
 

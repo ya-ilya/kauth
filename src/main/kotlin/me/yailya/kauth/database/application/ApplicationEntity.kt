@@ -7,6 +7,8 @@ package me.yailya.kauth.database.application
 import me.yailya.kauth.database.abstraction.IdEntityClass
 import me.yailya.kauth.database.abstraction.ModeledIdEntity
 import me.yailya.kauth.database.account.AccountEntity
+import me.yailya.kauth.database.application.file.ApplicationFileEntity
+import me.yailya.kauth.database.application.file.ApplicationFiles
 import me.yailya.kauth.database.application.user.ApplicationUserEntity
 import me.yailya.kauth.database.application.user.ApplicationUsers
 import me.yailya.kauth.database.application.webhook.ApplicationWebhookEntity
@@ -30,6 +32,7 @@ class ApplicationEntity(id: EntityID<UUID>) : ModeledIdEntity<UUID, ApplicationM
     var owner by AccountEntity referencedOn Applications.owner
     val users by ApplicationUserEntity referrersOn ApplicationUsers.application
     val webhooks by ApplicationWebhookEntity referrersOn ApplicationWebhooks.application
+    val files by ApplicationFileEntity referrersOn ApplicationFiles.application
     var name by Applications.name
 
     suspend fun createApplicationUser(key: String, hwid: String) =
@@ -66,6 +69,24 @@ class ApplicationEntity(id: EntityID<UUID>) : ModeledIdEntity<UUID, ApplicationM
         getApplicationWebhook(id).delete()
     }
 
+    suspend fun createApplicationFile(fileName: String, byteArray: ByteArray) =
+        ApplicationFileEntity.create(this, fileName, byteArray)
+
+
+    suspend fun getApplicationFile(id: UUID) = databaseQuery {
+        files.find { it.id.value == id }!!
+    }
+
+    suspend fun getApplicationFileModels() = databaseQuery {
+        files.map { it.toModel() }
+    }
+
+    suspend fun getApplicationFiles() = databaseQuery { files }
+
+    suspend fun deleteApplicationFile(id: UUID) = databaseQuery {
+        getApplicationFile(id).delete()
+    }
+
     suspend fun updateEntity(block: suspend ApplicationEntity.() -> Unit) = databaseQuery {
         block(this)
         this
@@ -79,7 +100,8 @@ class ApplicationEntity(id: EntityID<UUID>) : ModeledIdEntity<UUID, ApplicationM
             owner.id.value,
             name,
             users.map { it.toModel() },
-            webhooks.map { it.toModel() }
+            webhooks.map { it.toModel() },
+            files.map { it.toModel() }
         )
     }
 }
